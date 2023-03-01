@@ -5,7 +5,9 @@ import csv # import csv module
 
 base_URL="https://www.buyrentkenya.com/houses-for-rent"
 
-headers = {"User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'}
+#input your headers here
+
+headers = { }
 
 # create a csv file and write the header row
 with open("houses_data.csv", "w", newline="", encoding="utf-8") as f:
@@ -13,7 +15,7 @@ with open("houses_data.csv", "w", newline="", encoding="utf-8") as f:
     writer.writerow(["Title", "Location", "Bedrooms", "Rent"])
 
 # loop through different page numbers
-page = 2 # start from page 1
+page = 2 # start from page 2
 while True:
     # append the page number to the base URL
     
@@ -22,19 +24,18 @@ while True:
     response = requests.get(URL, headers=headers)
     soup = BeautifulSoup(response.content, 'html.parser')
 
-
-
-
-# get a list of div elements that have the class "card"
+# get a list of div elements that have the class that contsins the listings
     items = soup.find_all("div", class_="flex flex-col justify-between md:w-2/3 px-5 py-4")
 
       # if there are no items on the page, break out of the loop
     if not items:
         break
-
+        
+    
     for item in items:
 
-
+        ## get the listing title information
+        
         title = item.find("span", class_ ="hidden md:inline").get_text()
 
         # get the bedrooms information using try and except
@@ -43,30 +44,20 @@ while True:
         except AttributeError: # catch the AttributeError if there is no such element
             bedrooms = "" # assign a default value to bedrooms
 
+        #get lication information
         
-        location = item.find("p", class_="text-sm font-normal text-grey-500 truncate ml-1").get_text()
-        #bedrooms = item.find("span", class_="font-semibold leading-6").get_text()
+        location = item.find("p", class_="text-sm font-normal text-grey-500 truncate ml-1").get_text()      
         
-
-        # get the bedrooms information using try and except
+        # get the rent information 
         
         rent = item.find("p", class_="font-bold text-xl leading-7 text-grey-900").get_text() 
-
-
-
-
 
         # use regular expression to extract numbers from rent string
         try:
             rent_number = ''.join(re.findall('\d+', rent)) # join the list elements into a single string
             rent_number = int(rent_number) # convert the string into an integer
         except:
-            rent_number = 0 # assign 0 if there is no rent information
-
-
-
-# use regular expression to extract numbers from rent string
-        
+            rent_number = 0 # assign 0 if there is no rent information     
         
 
         # write each row of data into the csv file
